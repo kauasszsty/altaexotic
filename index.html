@@ -1,310 +1,187 @@
-<!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<!doctype html>
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auto Exotic - Calculadora de Venda</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        cyber: {
-                            bg: '#050b14',
-                            card: '#0a1424',
-                            border: '#1e3a8a',
-                            cyan: '#00f0ff',
-                            blue: '#0077ff',
-                            glow: 'rgba(0, 240, 255, 0.3)'
-                        }
-                    },
-                    boxShadow: {
-                        'neon': '0 0 15px rgba(0, 240, 255, 0.4)',
-                        'neon-strong': '0 0 25px rgba(0, 240, 255, 0.7)',
-                    }
-                }
-            }
-        }
-    </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&display=swap');
-        body {
-            font-family: 'Rajdhani', sans-serif;
-            background-color: #050b14;
-            color: #e2e8f0;
-            background-image: 
-                radial-gradient(circle at 50% 0%, rgba(0, 119, 255, 0.15) 0%, transparent 60%),
-                radial-gradient(circle at 10% 90%, rgba(0, 240, 255, 0.1) 0%, transparent 40%);
-            min-height: 100vh;
-        }
-        .title-font {
-            font-family: 'Orbitron', sans-serif;
-        }
-        .cyber-border {
-            position: relative;
-            background: linear-gradient(135deg, rgba(10, 20, 36, 0.95) 0%, rgba(5, 11, 20, 0.95) 100%);
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            box-shadow: 0 0 10px rgba(0, 119, 255, 0.2);
-        }
-        .cyber-border::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 8px; height: 8px;
-            border-top: 2px solid #00f0ff;
-            border-left: 2px solid #00f0ff;
-        }
-        .cyber-border::after {
-            content: '';
-            position: absolute;
-            bottom: 0; right: 0; width: 8px; height: 8px;
-            border-bottom: 2px solid #00f0ff;
-            border-right: 2px solid #00f0ff;
-        }
-        .glow-text {
-            text-shadow: 0 0 10px rgba(0, 240, 255, 0.6), 0 0 20px rgba(0, 240, 255, 0.3);
-        }
-
-        /* Custom Neon Checkbox */
-        .custom-checkbox {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-            border: 2px solid rgba(0, 240, 255, 0.4);
-            background-color: rgba(5, 11, 20, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-        .custom-checkbox i {
-            font-size: 11px;
-            color: #050b14;
-            opacity: 0;
-            transform: scale(0.5);
-            transition: all 0.2s ease;
-        }
-        .checked-box .custom-checkbox {
-            background-color: #00f0ff;
-            border-color: #00f0ff;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
-        }
-        .checked-box .custom-checkbox i {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #050b14;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #1e3a8a;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #00f0ff;
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Explore reparos, produtos e manutenção da Auto Exotic e monte seu orçamento de serviços ou parcerias.">
+<title>Auto Exotic | Calculadora de orçamentos</title>
+<style>
+:root { color-scheme: dark; --bg:#10151b; --panel:#19222b; --line:#384959; --ink:#f0f5fa; --muted:#b3c2d0; --accent:#39e5ff; font-family: system-ui,sans-serif; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); line-height:1.5; }
+.shell { width:min(1180px, calc(100% - 2rem)); margin-inline:auto; }
+h1,h2,p { margin:0; }
+h1 { max-width:10ch; font-size:clamp(2.7rem,6.2vw,5.65rem); line-height:.99; letter-spacing:-.072em; }
+.hero-name { display:block; }
+h2,.catalog h3 { margin:0; font-size:1.25rem; letter-spacing:-.035em; }
+p,small { color:var(--muted); }
+small { font-size:.875rem; }
+a { color:inherit; }
+.site-header { border-bottom:1px solid var(--line); background:#121a23; }
+.header-inner { display:flex; align-items:center; justify-content:space-between; gap:.75rem; min-height:4rem; }
+.wordmark { text-decoration:none; font-weight:850; letter-spacing:.075em; text-transform:uppercase; }
+.header-link { font-weight:650; color:var(--accent); text-underline-offset:.25em; padding-block:.65rem; }
+.showcase {
+  background:linear-gradient(120deg,#17222e 10%,#122331 63%,#112d46);
+  border-bottom:1px solid var(--line);
+}
+.hero { display:grid; grid-template-columns:minmax(0, .9fr) minmax(0, 1.15fr); gap:clamp(1.5rem,5vw,4.5rem); align-items:center; padding-block:clamp(2rem,6vw,5.3rem); }
+.hero-copy p { max-width:32ch; margin:1rem 0 1.5rem; }
+.hero-cta { display:inline-flex; align-items:center; min-height:48px; border-radius:.55rem; padding:.6rem 1rem; text-decoration:none; font-weight:800; }
+.hero-cta:hover,.primary:hover:not(:disabled) { background:#a2f4ff; }
+.logo-frame { position:relative; isolation:isolate; margin:0; padding:clamp(.55rem,1.4vw,1rem); border:1px solid #456988; background:#132332; box-shadow:0 1.2rem 3rem #070f1b80; }
+.logo-frame::before,.logo-frame::after { content:""; position:absolute; height:.28rem; background:linear-gradient(90deg,#35eaff,#258cf7); transform:skewX(-30deg); }
+.logo-frame::before { top:-.15rem; right:.8rem; width:23%; }
+.logo-frame::after { bottom:-.15rem; left:.8rem; width:38%; }
+.logo-frame img { display:block; width:100%; height:auto; }
+.budget { padding-block:clamp(1.7rem,4vw,3rem) 4.5rem; scroll-margin-top:1rem; }
+.budget-heading { font-size:clamp(1.65rem,4vw,2.5rem); }
+.category-nav { display:flex; flex-wrap:wrap; gap:.45rem; margin:.85rem 0 1.15rem; }
+.category-nav a { min-height:44px; display:inline-flex; align-items:center; border:1px solid var(--line); border-radius:.45rem; padding:.35rem .75rem; font-weight:650; text-decoration:none; }
+.category-nav a[hidden] { display:none; }
+.category-nav a:hover { border-color:var(--accent); color:var(--accent); }
+.budget-layout { display:grid; grid-template-columns:minmax(0, 1fr) minmax(17rem, .55fr); gap:1.3rem; align-items:start; }
+.catalog section { scroll-margin-top:1rem; }
+.catalog { display:grid; gap:1rem; }
+.panel { background:var(--panel); border:1px solid var(--line); border-radius:.8rem; padding:clamp(.85rem,2vw,1.35rem); }
+.modes,.fees,.cards { display:grid; gap:.55rem; }
+.modes,.cards { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.fees { grid-template-columns:repeat(3,minmax(0,1fr)); margin-block:.8rem; }
+.cards { margin-top:.8rem; }
+button,a,input { font:inherit; }
+button { color:var(--ink); cursor:pointer; }
+button,a.jump { min-height:44px; }
+button:disabled { cursor:default; opacity:.45; }
+:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+.mode,.action,.step button { border:1px solid var(--line); border-radius:.6rem; background:#243443; font-weight:700; }
+.mode[aria-pressed=true],.primary { background:var(--accent); color:#071923; border-color:var(--accent); }
+.option,.quantity { min-width:0; background:#121b24; border:1px solid var(--line); border-radius:.7rem; padding:.7rem; }
+.option { display:flex; align-items:center; justify-content:space-between; gap:.55rem; min-height:48px; cursor:pointer; }
+.option:has(input:checked) { border-color:var(--accent); background:#173546; }
+.option input { width:1.15rem; height:1.15rem; margin:0; flex:none; accent-color:var(--accent); }
+.option span,.quantity strong { overflow-wrap:anywhere; }
+.option small,.quantity small { display:block; }
+.fees .option { justify-content:flex-start; }
+.police { margin-top:.4rem; }
+.quantity { display:grid; grid-template-rows:1fr auto auto; gap:.65rem; }
+.quantity[data-selected=true] { border-color:var(--accent); background:#173546; }
+.quantity-total { display:flex; flex-wrap:wrap; justify-content:space-between; gap:.2rem .5rem; border-top:1px solid var(--line); padding-top:.5rem; }
+.quantity [hidden] { display:none; }
+.quantity-total output { color:var(--accent); font-weight:750; overflow-wrap:anywhere; }
+.included { color:var(--accent); font-weight:700; margin-top:.2rem; }
+.step { display:flex; align-items:center; gap:.35rem; }
+.step button { min-width:44px; font-size:1.25rem; }
+.step input { width:5rem; min-width:0; min-height:44px; padding:.25rem; text-align:center; border:1px solid var(--line); border-radius:.6rem; background:var(--bg); color:var(--ink); font-variant-numeric:tabular-nums; }
+.step input[aria-invalid=true] { border-color:#ffb296; }
+html { scroll-padding-bottom:1rem; }
+.summary { border-top:3px solid #2e99ff; position:sticky; top:1rem; scroll-margin-top:1rem; max-height:calc(100dvh - 2rem); overflow:auto; }
+.receipt { list-style:none; margin:.85rem 0; padding:0; }
+.receipt li { display:flex; justify-content:space-between; align-items:baseline; gap:.7rem; padding:.45rem 0; border-bottom:1px solid var(--line); }
+.receipt li strong { text-align:right; overflow-wrap:anywhere; }
+.receipt small { display:block; }
+#summary-title { margin:0; font-size:1.25rem; }
+.summary h4 { font-size:1rem; margin:.8rem 0 0; }
+.summary-row { display:flex; justify-content:space-between; gap:.6rem; }
+.summary-row strong { overflow-wrap:anywhere; text-align:right; }
+#empty { margin-block:.75rem; }
+#incident-warning p { background:#34291b; color:#ffe1a5; border:1px solid #856536; border-radius:.6rem; padding:.65rem; margin-bottom:.8rem; }
+.total { display:flex; align-items:baseline; justify-content:space-between; gap:.55rem; margin:.85rem 0; padding-top:.65rem; border-top:1px solid var(--line); }
+.total output { color:var(--accent); font-weight:850; font-size:clamp(1.7rem,4vw,2.35rem); font-variant-numeric:tabular-nums; text-align:right; overflow-wrap:anywhere; }
+.actions { display:grid; gap:.5rem; }
+.action { padding:.5rem; }
+#feedback { margin-top:.55rem; }
+#feedback:empty { margin:0; }
+#policy { display:block; margin-top:.8rem; }
+.jump { display:none; }
+@media (max-width:760px) {
+  html { scroll-padding-bottom:calc(6rem + env(safe-area-inset-bottom)); }
+  .hero { grid-template-columns:minmax(0,1fr); gap:1.45rem; }
+  .logo-frame { grid-row:1; }
+  h1 { max-width:14ch; }
+  .budget { padding-bottom:calc(7rem + env(safe-area-inset-bottom)); }
+  .budget-layout { grid-template-columns:minmax(0,1fr); }
+  .summary { position:static; max-height:none; overflow:visible; }
+  body:has(.step input:focus) .jump { display:none; }
+  #mobile-total { text-align:right; overflow-wrap:anywhere; }
+  .jump:not([hidden]) { display:flex; position:fixed; z-index:1; bottom:max(.7rem,env(safe-area-inset-bottom)); inset-inline:1rem; align-items:center; justify-content:space-between; padding:.6rem 1rem; gap:1rem; border-radius:.65rem; background:var(--accent); color:#071923; text-decoration:none; font-weight:800; box-shadow:0 4px 24px #0007; }
+}
+@media (max-width:480px) { .cards { grid-template-columns:1fr; } .fees .option { flex-wrap:wrap; } }
+</style>
 </head>
-<body class="p-3 sm:p-6 antialiased">
-    <div class="max-w-7xl mx-auto">
-        
-        <!-- HEADER -->
-        <header class="text-center mb-8 relative">
-            <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
-                <i class="fa-solid fa-car-burst text-9xl text-cyan-400"></i>
-            </div>
-            <div class="inline-block border border-cyan-500/40 px-6 py-2 rounded bg-cyan-950/20 backdrop-blur mb-3 shadow-neon">
-                <span class="text-cyan-400 font-bold tracking-widest uppercase text-xs sm:text-sm title-font">Sistema de Orçamento</span>
-            </div>
-            <h1 class="title-font text-4xl sm:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-300 glow-text tracking-wider uppercase mb-2">
-                AUTO EXOTIC
-            </h1>
-            <p class="text-slate-400 text-sm sm:text-base max-w-xl mx-auto">
-                Calculadora oficial de serviços, parcerias e taxas de deslocamento.
-            </p>
-        </header>
-
-        <!-- MAIN LAYOUT: 2 COLUMNS ON DESKTOP -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-
-            <!-- LEFT COLUMN: ITEMS & SERVICES (8 Cols) -->
-            <div class="lg:col-span-8 space-y-6">
-                
-                <!-- TABS: SERVIÇOS vs PARCERIAS -->
-                <div class="cyber-border p-2 rounded-xl flex gap-2">
-                    <button onclick="setMode('servicos')" id="btn-mode-servicos" 
-                        class="flex-1 py-3 px-4 rounded-lg font-bold title-font text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 flex items-center justify-center gap-2 bg-cyan-500 text-slate-950 shadow-neon">
-                        <i class="fa-solid fa-wrench"></i> Valores Serviços
-                    </button>
-                    <button onclick="setMode('parcerias')" id="btn-mode-parcerias" 
-                        class="flex-1 py-3 px-4 rounded-lg font-bold title-font text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 flex items-center justify-center gap-2 text-slate-400 hover:text-cyan-400 hover:bg-cyan-950/30">
-                        <i class="fa-solid fa-handshake"></i> Valores Parcerias
-                    </button>
-                </div>
-
-                <!-- TAXAS OBRIGATÓRIAS (NO TOPO) -->
-                <div class="cyber-border p-5 rounded-xl">
-                    <div class="flex items-center gap-3 border-b border-cyan-500/20 pb-3 mb-4">
-                        <div class="p-2 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
-                            <i class="fa-solid fa-location-dot text-lg"></i>
-                        </div>
-                        <h2 class="title-font font-bold text-lg text-cyan-300 tracking-wider">Taxa Obrigatória de Deslocamento</h2>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-                        <label id="fee-local-card" onclick="setFee('local')" class="cursor-pointer p-4 rounded-lg border border-slate-700 bg-slate-900/60 hover:border-cyan-500/60 transition-all flex flex-col justify-between checked-box">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="font-bold text-slate-300 title-font text-sm"><i class="fa-solid fa-location-crosshairs text-cyan-400 mr-1"></i> Local</span>
-                                <div class="custom-checkbox" id="radio-local-check"><i class="fa-solid fa-check"></i></div>
-                            </div>
-                            <span class="text-slate-400 font-extrabold text-lg title-font">$0</span>
-                        </label>
-
-                        <label id="fee-sul-card" onclick="setFee('sul')" class="cursor-pointer p-4 rounded-lg border border-slate-700 bg-slate-900/60 hover:border-cyan-500/60 transition-all flex flex-col justify-between">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="font-bold text-slate-300 title-font text-sm"><i class="fa-solid fa-arrow-down text-cyan-400 mr-1"></i> Sul</span>
-                                <div class="custom-checkbox" id="radio-sul-check"><i class="fa-solid fa-check"></i></div>
-                            </div>
-                            <span class="text-cyan-400 font-extrabold text-lg title-font" id="price-fee-sul">$1.500</span>
-                        </label>
-
-                        <label id="fee-norte-card" onclick="setFee('norte')" class="cursor-pointer p-4 rounded-lg border border-slate-700 bg-slate-900/60 hover:border-cyan-500/60 transition-all flex flex-col justify-between">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="font-bold text-slate-300 title-font text-sm"><i class="fa-solid fa-arrow-up text-cyan-400 mr-1"></i> Norte</span>
-                                <div class="custom-checkbox" id="radio-norte-check"><i class="fa-solid fa-check"></i></div>
-                            </div>
-                            <span class="text-cyan-400 font-extrabold text-lg title-font" id="price-fee-norte">$2.500</span>
-                        </label>
-                    </div>
-
-                    <!-- EXPLOSÃO / ÁGUA -->
-                    <div id="explosao-card" onclick="toggleExplosao()" class="cursor-pointer p-4 rounded-lg border border-slate-700 bg-slate-900/60 hover:border-cyan-500/60 transition-all flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="p-2 rounded bg-red-500/10 text-red-400 border border-red-500/30">
-                                <i class="fa-solid fa-car-burst"></i>
-                            </div>
-                            <div>
-                                <span class="font-bold text-slate-200 title-font block text-sm">Explosão / Água</span>
-                                <span class="text-xs text-slate-400" id="explosao-desc">Veículos explodidos ou dentro da água</span>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-red-400 font-extrabold title-font text-lg" id="price-explosao">$5.000</span>
-                            <div class="custom-checkbox" id="check-explosao-box"><i class="fa-solid fa-check"></i></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- CATEGORY 1: REPAROS & PRINCIPAIS (EM 3 COLUNAS) -->
-                <div class="cyber-border p-5 rounded-xl">
-                    <div class="flex items-center gap-3 border-b border-cyan-500/20 pb-3 mb-4">
-                        <div class="p-2 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
-                            <i class="fa-solid fa-car-side text-lg"></i>
-                        </div>
-                        <h2 class="title-font font-bold text-lg text-cyan-300 tracking-wider">Reparos & Veículos</h2>
-                    </div>
-
-                    <div id="repair-items-container" class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <!-- Populated dynamically via JS -->
-                    </div>
-                </div>
-
-                <!-- CATEGORY 2: ITENS DE QUANTIDADE (KIT, PNEU, CHAVE, PANO, CORDA) -->
-                <div class="cyber-border p-5 rounded-xl">
-                    <div class="flex items-center gap-3 border-b border-cyan-500/20 pb-3 mb-4">
-                        <div class="p-2 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
-                            <i class="fa-solid fa-boxes-stacked text-lg"></i>
-                        </div>
-                        <h2 class="title-font font-bold text-lg text-cyan-300 tracking-wider">Itens de Quantidade</h2>
-                    </div>
-
-                    <div id="quantity-items-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <!-- Populated dynamically via JS -->
-                    </div>
-                </div>
-
-                <!-- CATEGORY 3: OUTROS SERVIÇOS & ESTÉTICA -->
-                <div class="cyber-border p-5 rounded-xl">
-                    <div class="flex items-center gap-3 border-b border-cyan-500/20 pb-3 mb-4">
-                        <div class="p-2 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
-                            <i class="fa-solid fa-spray-can-sparkles text-lg"></i>
-                        </div>
-                        <h2 class="title-font font-bold text-lg text-cyan-300 tracking-wider">Manutenção, Óleo & Estética</h2>
-                    </div>
-
-                    <div id="extra-items-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <!-- Populated dynamically via JS -->
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- RIGHT COLUMN: SUMMARY & RECEIPT (4 Cols) -->
-            <div class="lg:col-span-4 lg:sticky lg:top-6 space-y-4">
-                
-                <div class="cyber-border p-6 rounded-2xl relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none"></div>
-                    
-                    <div class="flex items-center justify-between pb-4 border-b border-cyan-500/20 mb-5">
-                        <h3 class="title-font font-black text-xl text-white tracking-wider flex items-center gap-2">
-                            <i class="fa-solid fa-receipt text-cyan-400"></i> Resumo
-                        </h3>
-                        <span id="badge-mode" class="px-3 py-1 rounded text-xs font-bold uppercase title-font bg-cyan-500/20 text-cyan-400 border border-cyan-500/40">
-                            Serviços
-                        </span>
-                    </div>
-
-                    <!-- ITEMIZED LIST -->
-                    <div id="summary-items" class="space-y-2 mb-6 max-h-64 overflow-y-auto pr-1 text-sm text-slate-300">
-                        <p class="text-slate-500 italic text-center py-4">Nenhum item selecionado.</p>
-                    </div>
-
-                    <!-- TOTAL PRICE BOX -->
-                    <div class="bg-slate-950/80 border border-cyan-500/40 rounded-xl p-4 mb-5 text-center relative overflow-hidden shadow-inner">
-                        <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent"></div>
-                        <span class="text-xs uppercase tracking-widest text-slate-400 title-font block mb-1">Valor Total</span>
-                        <div id="total-price" class="title-font text-3xl sm:text-4xl font-black text-cyan-400 glow-text">
-                            $0
-                        </div>
-                    </div>
-
-                    <!-- ACTIONS -->
-                    <div class="space-y-3">
-                        <button onclick="copyTotal()" class="w-full py-3.5 px-4 rounded-xl font-extrabold title-font tracking-wider uppercase bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 hover:from-cyan-400 hover:to-blue-500 transition-all shadow-neon flex items-center justify-center gap-2 active:scale-95">
-                            <i class="fa-regular fa-copy"></i> Copiar
-                        </button>
-                        <button onclick="resetCalculator()" class="w-full py-2.5 px-4 rounded-xl font-bold title-font text-xs tracking-wider uppercase border border-slate-700 text-slate-400 hover:text-red-400 hover:border-red-500/40 transition-all flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-rotate-right"></i> Limpar Tudo
-                        </button>
-                    </div>
-
-                    <!-- NOTIFICATION TOAST -->
-                    <div id="toast" class="opacity-0 pointer-events-none transition-opacity duration-300 mt-4 p-3 rounded-lg bg-cyan-950/80 border border-cyan-500 text-cyan-300 text-center text-xs font-bold title-font">
-                        Valor copiado para a área de transferência!
-                    </div>
-
-                </div>
-
-                <!-- FOOTER NOTE -->
-                <div class="text-center text-xs text-slate-500 px-2">
-                    <p id="footer-note">*Veículos explodidos ou dentro da água precisam ser guardados numa garagem antes de serem reparados e a taxa acima é cobrada no lugar do reparo simples.</p>
-                </div>
-
-            </div>
-
-        </div>
-
+<body id="top">
+<header class="site-header">
+  <div class="shell header-inner">
+    <a class="wordmark" href="#top">Auto Exotic</a>
+    <a class="header-link" href="#orcamento">Orçamento</a>
+  </div>
+</header>
+<main>
+  <section class="showcase" aria-labelledby="hero-title">
+    <div class="shell hero">
+      <div class="hero-copy">
+        <h1 id="hero-title">Oficina <span class="hero-name">Auto Exotic</span></h1>
+        <p>Reparos, produtos e estética automotiva. Consulte os valores e monte seu orçamento na hora.</p>
+        <a class="hero-cta primary" href="#orcamento">Montar orçamento</a>
+      </div>
+      <figure class="logo-frame">
+        <img src="auto-exotic-logo.webp" width="1462" height="382" alt="Logo Auto Exotic">
+      </figure>
     </div>
-
-    <script>
-        // DATA DEFINITIONS
+  </section>
+  <section class="shell budget" id="orcamento" tabindex="-1" aria-labelledby="budget-heading">
+    <h2 class="budget-heading" id="budget-heading">Calculadora de orçamentos</h2>
+    <nav class="category-nav" aria-label="Categorias do orçamento">
+      <a href="#repairs">Reparos</a>
+      <a href="#products">Produtos</a>
+      <a href="#extra-section" id="maintenance-link">Manutenção</a>
+    </nav>
+    <div class="budget-layout">
+      <div class="catalog">
+        <div class="panel modes" role="group" aria-label="Tabela de preços">
+          <button type="button" class="mode" data-mode="servicos" aria-pressed="true">Serviços</button>
+          <button type="button" class="mode" data-mode="parcerias" aria-pressed="false">Parcerias</button>
+        </div>
+        <section class="panel" aria-labelledby="fees-title">
+          <h3 id="fees-title">Deslocamento</h3>
+          <div class="fees" id="fees" role="group" aria-labelledby="fees-title"></div>
+          <label class="option">
+            <span><strong>Explosão / Água</strong><small id="incident-price"></small></span>
+            <input type="checkbox" id="incident">
+          </label>
+          <small id="incident-note"></small>
+        </section>
+        <section class="panel" id="repairs" tabindex="-1"><h3>Reparos e veículos</h3><div class="cards" id="reparos"></div></section>
+        <section class="panel" id="products" tabindex="-1"><h3>Itens por unidade</h3><div class="cards" id="quantidades"></div></section>
+        <section class="panel" id="extra-section" tabindex="-1"><h3>Manutenção e estética</h3><div class="cards" id="extras"></div></section>
+      </div>
+      <section class="panel summary" id="resumo" tabindex="-1" aria-labelledby="summary-title">
+        <h3 id="summary-title">Resumo do orçamento</h3>
+        <p id="summary-mode"></p>
+        <div id="items-summary" hidden>
+          <h4>Itens</h4>
+          <ul id="receipt" class="receipt"></ul>
+          <div class="summary-row"><span>Subtotal dos itens</span><strong id="items-subtotal"></strong></div>
+        </div>
+        <div id="fees-summary" hidden>
+          <h4>Taxas</h4>
+          <ul id="receipt-fees" class="receipt"></ul>
+        </div>
+        <p id="empty">Adicione itens ou selecione uma taxa para começar.</p>
+        <div class="total"><label for="total">Total</label><output id="total">$0</output></div>
+        <div id="incident-warning" role="status"></div>
+        <div class="actions">
+          <button type="button" class="action primary" id="copy-receipt">Copiar orçamento</button>
+          <button type="button" class="action" id="copy-total">Copiar total</button>
+          <button type="button" class="action" id="clear">Limpar orçamento</button>
+        </div>
+        <p id="feedback" role="status"></p>
+        <small id="policy"></small>
+      </section>
+    </div>
+  </section>
+</main>
+<a class="jump" id="mobile-summary" href="#resumo" hidden><span>Ver orçamento</span><span id="mobile-total">$0</span></a>
+<script>
         const data = {
             servicos: {
                 reparos: [
@@ -359,286 +236,228 @@
             }
         };
 
-        let currentMode = 'servicos';
-        let state = {
-            selections: {},
-            policeCar: false,
-            fee: 'local',
-            explosao: false
-        };
 
-        function setMode(mode) {
-            currentMode = mode;
-            state.selections = {};
-            state.policeCar = false;
-            
-            const btnServ = document.getElementById('btn-mode-servicos');
-            const btnParc = document.getElementById('btn-mode-parcerias');
-            const badge = document.getElementById('badge-mode');
+const byId = id => document.getElementById(id);
+const money = value => '$' + value.toLocaleString('pt-BR');
+const modeNames = { servicos: 'Serviços', parcerias: 'Parcerias' };
+const feeNames = { local: 'Local', sul: 'Sul', norte: 'Norte' };
+const emptyDraft = () => ({ items: {}, fee: 'local', incident: false, police: false });
+const drafts = { servicos: emptyDraft(), parcerias: emptyDraft() };
+let mode = 'servicos';
+let receiptText = '';
+let totalText = '$0';
+const incidentWarning = 'Confira o reparo selecionado. Se a taxa de Explosão / Água substituir o reparo simples, desmarque o reparo antes de copiar.';
+const catalogElement = document.querySelector('.catalog');
+// Keep totals exact even if every quantity field reaches its maximum.
+const maxQuantity = Math.min(...Object.values(data).map(catalog => {
+  const fixedTotal = [...catalog.reparos, ...catalog.extras].reduce((sum, item) => sum + item.price, 0)
+    + Math.max(catalog.taxas.sul, catalog.taxas.norte) + catalog.taxas.explosao;
+  const quantityPrices = catalog.quantidades.reduce((sum, item) => sum + item.price, 0);
+  return Math.floor((Number.MAX_SAFE_INTEGER - fixedTotal) / quantityPrices);
+}));
 
-            if (mode === 'servicos') {
-                btnServ.className = "flex-1 py-3 px-4 rounded-lg font-bold title-font text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 flex items-center justify-center gap-2 bg-cyan-500 text-slate-950 shadow-neon";
-                btnParc.className = "flex-1 py-3 px-4 rounded-lg font-bold title-font text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 flex items-center justify-center gap-2 text-slate-400 hover:text-cyan-400 hover:bg-cyan-950/30";
-                badge.innerText = "Serviços";
-            } else {
-                btnParc.className = "flex-1 py-3 px-4 rounded-lg font-bold title-font text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 flex items-center justify-center gap-2 bg-cyan-500 text-slate-950 shadow-neon";
-                btnServ.className = "flex-1 py-3 px-4 rounded-lg font-bold title-font text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 flex items-center justify-center gap-2 text-slate-400 hover:text-cyan-400 hover:bg-cyan-950/30";
-                badge.innerText = "Parcerias";
-            }
+function renderCatalog() {
+  const catalog = data[mode];
+  const draft = drafts[mode];
+  document.querySelectorAll('[data-mode]').forEach(button => {
+    button.setAttribute('aria-pressed', button.dataset.mode === mode);
+  });
+  byId('fees').innerHTML = Object.entries(feeNames).map(([id, name]) =>
+    `<label class="option"><input name="fee" type="radio" value="${id}" ${draft.fee === id ? 'checked' : ''}><span><strong>${name}</strong><small>${money(catalog.taxas[id] || 0)}</small></span></label>`
+  ).join('');
+  byId('incident').checked = draft.incident;
+  byId('incident-price').textContent = money(catalog.taxas.explosao);
+  byId('incident-note').textContent = mode === 'servicos'
+    ? 'Guarde o veículo na garagem antes do reparo. Se esta taxa substituir o reparo simples, desmarque o reparo no orçamento.'
+    : catalog.taxas.explosaoDesc;
+  const hasMaintenance = catalog.extras.length > 0;
+  byId('extra-section').hidden = !hasMaintenance;
+  byId('maintenance-link').hidden = !hasMaintenance;
+  byId('policy').textContent = mode === 'parcerias' ? catalog.taxas.footerNote.replace(/^\*/, '') : '';
+  for (const group of ['reparos', 'quantidades', 'extras']) {
+    byId(group).innerHTML = catalog[group].map(item => {
+      const selected = draft.items[item.id];
+      if (item.type === 'qty') {
+        const count = selected || 0;
+        return `<div class="quantity" id="product-${item.id}" data-selected="${count > 0}">
+          <div><strong>${item.name}</strong><small>${money(item.price)} por unidade</small>
+            <small class="included" id="included-${item.id}" ${count ? '' : 'hidden'}>Incluído</small></div>
+          <div class="step" role="group" aria-label="Quantidade de ${item.name}">
+            <button type="button" data-step="-1" data-id="${item.id}" aria-label="Retirar uma unidade: ${item.name}" ${count ? '' : 'disabled'}>−</button>
+            <input type="text" inputmode="numeric" autocomplete="off" data-quantity="${item.id}" id="qty-${item.id}" aria-label="Quantidade de ${item.name}" value="${count}">
+            <button type="button" data-step="1" data-id="${item.id}" aria-label="Adicionar uma unidade: ${item.name}" ${count === maxQuantity ? 'disabled' : ''}>+</button>
+          </div>
+          <div class="quantity-total"><small>Subtotal</small><output id="subtotal-${item.id}" for="qty-${item.id}" aria-live="off">${money(count * item.price)}</output></div>
+        </div>`;
+      }
+      const price = draft.police && item.policePrice ? item.policePrice : item.price;
+      return `<div><label class="option"><span><strong>${item.name}</strong><small id="price-${item.id}">${money(price)}</small></span>
+        <input type="checkbox" data-item="${item.id}" ${selected ? 'checked' : ''}></label>
+        ${item.policePrice ? `<label class="option police"><span>Veículo policial</span><input type="checkbox" id="police" ${draft.police ? 'checked' : ''}></label>` : ''}</div>`;
+    }).join('');
+  }
+  renderSummary();
+}
 
-            document.getElementById('footer-note').innerText = data[currentMode].taxas.footerNote;
-            document.getElementById('price-explosao').innerText = '$' + data[currentMode].taxas.explosao.toLocaleString('en-US');
-            document.getElementById('explosao-desc').innerText = data[currentMode].taxas.explosaoDesc;
+function renderSummary() {
+  const draft = drafts[mode];
+  const catalog = data[mode];
+  const items = [];
+  const fees = [];
+  for (const item of [...catalog.reparos, ...catalog.quantidades, ...catalog.extras]) {
+    const count = draft.items[item.id];
+    if (!count) continue;
+    const police = draft.police && item.policePrice;
+    const name = police ? item.name + ' (Polícia)' : item.name;
+    const price = police || item.price;
+    items.push({ name, detail: item.type === 'qty' ? count + ' × ' + money(price) : '', subtotal: price * count });
+  }
+  if (draft.fee !== 'local') fees.push({ name: 'Deslocamento ' + feeNames[draft.fee], subtotal: catalog.taxas[draft.fee] });
+  if (draft.incident) fees.push({ name: 'Explosão / Água', subtotal: catalog.taxas.explosao });
 
-            renderUI();
-            calculateTotal();
-        }
+  const itemsSubtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
+  const total = fees.reduce((sum, fee) => sum + fee.subtotal, itemsSubtotal);
+  const hasLines = items.length + fees.length > 0;
+  totalText = money(total);
+  byId('total').value = totalText;
+  byId('mobile-total').textContent = totalText;
+  byId('summary-mode').textContent = modeNames[mode];
+  renderReceiptGroup('items-summary', 'receipt', items);
+  renderReceiptGroup('fees-summary', 'receipt-fees', fees);
+  byId('items-summary').hidden = !hasLines;
+  byId('items-subtotal').textContent = money(itemsSubtotal);
+  byId('empty').hidden = hasLines;
+  byId('copy-receipt').disabled = !hasLines;
+  byId('feedback').textContent = '';
 
-        function renderUI() {
-            const currentData = data[currentMode];
+  const warning = mode === 'servicos' && draft.incident && catalog.reparos.some(item => draft.items[item.id]);
+  const message = warning ? incidentWarning : '';
+  const warningElement = byId('incident-warning');
+  if (warningElement.textContent !== message) warningElement.innerHTML = message ? '<p>' + message + '</p>' : '';
 
-            // Render Repair Items (Grid 3 Columns)
-            const repairContainer = document.getElementById('repair-items-container');
-            repairContainer.innerHTML = currentData.reparos.map(item => {
-                const isSelected = !!state.selections[item.id];
-                const price = (item.type === 'car_police' && state.policeCar) ? item.policePrice : item.price;
-                
-                return `
-                    <div onclick="toggleSingle('${item.id}')" class="cursor-pointer p-4 rounded-xl border ${isSelected ? 'border-cyan-400 bg-cyan-950/30 shadow-neon checked-box' : 'border-slate-800 bg-slate-900/40 hover:border-slate-700'} transition-all flex flex-col justify-between">
-                        <div class="flex items-center justify-between mb-2">
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-lg ${isSelected ? 'bg-cyan-500 text-slate-950' : 'bg-slate-800 text-cyan-400'} flex items-center justify-center transition-colors">
-                                    <i class="fa-solid ${item.icon}"></i>
-                                </div>
-                                <span class="font-bold text-slate-200 title-font text-sm">${item.name}</span>
-                            </div>
-                            <div class="custom-checkbox"><i class="fa-solid fa-check"></i></div>
-                        </div>
-                        <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-800/80">
-                            <span class="text-xs text-slate-400 font-medium">Preço</span>
-                            <span class="text-cyan-400 font-extrabold title-font text-base">$${price.toLocaleString('en-US')}</span>
-                        </div>
-                        ${item.type === 'car_police' ? `
-                            <div onclick="event.stopPropagation()" class="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between">
-                                <span class="text-xs text-slate-300 flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-cyan-400"></i> Polícia ($1.500)</span>
-                                <div onclick="togglePoliceCustom()" class="cursor-pointer flex items-center ${state.policeCar ? 'checked-box' : ''}">
-                                    <div class="custom-checkbox"><i class="fa-solid fa-check"></i></div>
-                                </div>
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-            }).join('');
+  const asText = ({name, detail, subtotal}) => name + (detail ? ' (' + detail + ')' : '') + ' — ' + money(subtotal);
+  const receipt = ['Auto Exotic • ' + modeNames[mode]];
+  receipt.push('', 'Itens', ...items.map(asText), 'Subtotal dos itens: ' + money(itemsSubtotal));
+  if (fees.length) receipt.push('', 'Taxas', ...fees.map(asText));
+  receipt.push('', 'Total: ' + totalText);
+  receiptText = receipt.join('\n');
+}
 
-            // Render Quantity Items
-            const qtyContainer = document.getElementById('quantity-items-container');
-            qtyContainer.innerHTML = currentData.quantidades.map(item => {
-                const qty = state.selections[item.id] || 0;
-                const totalItemPrice = qty * item.price;
+function renderReceiptGroup(sectionId, listId, lines) {
+  byId(sectionId).hidden = lines.length === 0;
+  byId(listId).innerHTML = lines.map(({name, detail, subtotal}) =>
+    `<li><span>${name}${detail ? '<small>' + detail + '</small>' : ''}</span><strong>${money(subtotal)}</strong></li>`
+  ).join('');
+}
 
-                return `
-                    <div class="p-4 rounded-xl border ${qty > 0 ? 'border-cyan-400/80 bg-cyan-950/20 shadow-neon' : 'border-slate-800 bg-slate-900/40'} transition-all flex flex-col justify-between">
-                        <div class="flex items-center gap-2.5 mb-3">
-                            <div class="w-8 h-8 rounded-lg ${qty > 0 ? 'bg-cyan-500 text-slate-950' : 'bg-slate-800 text-cyan-400'} flex items-center justify-center transition-colors">
-                                <i class="fa-solid ${item.icon}"></i>
-                            </div>
-                            <div>
-                                <span class="font-bold text-slate-200 title-font text-sm block">${item.name}</span>
-                                <span class="text-xs text-cyan-400 font-semibold">$${item.price.toLocaleString('en-US')} un.</span>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between pt-2 border-t border-slate-800/80">
-                            <div class="flex items-center gap-1 bg-slate-950 rounded-lg border border-slate-800 p-1">
-                                <button onclick="changeQty('${item.id}', -1)" class="w-7 h-7 rounded bg-slate-800 hover:bg-cyan-500 hover:text-slate-950 text-slate-300 font-bold transition-colors flex items-center justify-center">
-                                    <i class="fa-solid fa-minus text-xs"></i>
-                                </button>
-                                <span class="w-8 text-center font-bold title-font text-sm text-white">${qty}</span>
-                                <button onclick="changeQty('${item.id}', 1)" class="w-7 h-7 rounded bg-slate-800 hover:bg-cyan-500 hover:text-slate-950 text-slate-300 font-bold transition-colors flex items-center justify-center">
-                                    <i class="fa-solid fa-plus text-xs"></i>
-                                </button>
-                            </div>
-                            <span class="text-cyan-400 font-extrabold title-font text-base">$${totalItemPrice.toLocaleString('en-US')}</span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+function updateQuantity(field, count) {
+  const id = field.dataset.quantity;
+  drafts[mode].items[id] = count;
+  const item = data[mode].quantidades.find(product => product.id === id);
+  byId('subtotal-' + id).value = money(count * item.price);
+  byId('product-' + id).dataset.selected = count > 0;
+  byId('included-' + id).hidden = count === 0;
 
-            // Render Extra Items
-            const extraContainer = document.getElementById('extra-items-container');
-            if (currentData.extras && currentData.extras.length > 0) {
-                extraContainer.parentElement.style.display = 'block';
-                extraContainer.innerHTML = currentData.extras.map(item => {
-                    const isSelected = !!state.selections[item.id];
-                    return `
-                        <div onclick="toggleSingle('${item.id}')" class="cursor-pointer p-4 rounded-xl border ${isSelected ? 'border-cyan-400 bg-cyan-950/30 shadow-neon checked-box' : 'border-slate-800 bg-slate-900/40 hover:border-slate-700'} transition-all flex flex-col justify-between">
-                            <div class="flex items-center justify-between mb-2">
-                                <div class="flex items-center gap-2.5">
-                                    <div class="w-8 h-8 rounded-lg ${isSelected ? 'bg-cyan-500 text-slate-950' : 'bg-slate-800 text-cyan-400'} flex items-center justify-center transition-colors">
-                                        <i class="fa-solid ${item.icon}"></i>
-                                    </div>
-                                    <span class="font-bold text-slate-200 title-font text-sm">${item.name}</span>
-                                </div>
-                                <div class="custom-checkbox"><i class="fa-solid fa-check"></i></div>
-                            </div>
-                            <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-800/80">
-                                <span class="text-xs text-slate-400 font-medium">Preço</span>
-                                <span class="text-cyan-400 font-extrabold title-font text-base">$${item.price.toLocaleString('en-US')}</span>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            } else {
-                extraContainer.parentElement.style.display = 'none';
-            }
-        }
+  const minus = field.previousElementSibling;
+  const plus = field.nextElementSibling;
+  if ((count === 0 && document.activeElement === minus) ||
+      (count === maxQuantity && document.activeElement === plus)) field.focus();
+  minus.disabled = count === 0;
+  plus.disabled = count === maxQuantity;
+  renderSummary();
+}
 
-        function toggleSingle(id) {
-            state.selections[id] = !state.selections[id];
-            renderUI();
-            calculateTotal();
-        }
+catalogElement.addEventListener('input', ({target}) => {
+  if (!target.dataset.quantity) return;
+  const count = Number(target.value);
+  const valid = /^[0-9]+$/.test(target.value) && count <= maxQuantity;
+  target.setAttribute('aria-invalid', String(!valid));
+  if (valid) updateQuantity(target, count);
+});
 
-        function togglePoliceCustom() {
-            state.policeCar = !state.policeCar;
-            renderUI();
-            calculateTotal();
-        }
+function restoreQuantity(field) {
+  field.value = drafts[mode].items[field.dataset.quantity] || 0;
+  field.removeAttribute('aria-invalid');
+}
 
-        function changeQty(id, delta) {
-            const currentQty = state.selections[id] || 0;
-            const newQty = Math.max(0, currentQty + delta);
-            if (newQty === 0) {
-                delete state.selections[id];
-            } else {
-                state.selections[id] = newQty;
-            }
-            renderUI();
-            calculateTotal();
-        }
+catalogElement.addEventListener('focusout', ({target}) => {
+  if (target.dataset.quantity) restoreQuantity(target);
+});
 
-        function setFee(feeType) {
-            state.fee = feeType;
+catalogElement.addEventListener('keydown', event => {
+  const field = event.target;
+  if (event.key === 'Enter' && field.dataset.quantity) {
+    event.preventDefault();
+    restoreQuantity(field);
+  }
+});
 
-            document.getElementById('fee-local-card').className = `cursor-pointer p-4 rounded-lg border ${feeType === 'local' ? 'border-cyan-400 bg-cyan-950/30 shadow-neon checked-box' : 'border-slate-700 bg-slate-900/60'} transition-all flex flex-col justify-between`;
-            document.getElementById('fee-sul-card').className = `cursor-pointer p-4 rounded-lg border ${feeType === 'sul' ? 'border-cyan-400 bg-cyan-950/30 shadow-neon checked-box' : 'border-slate-700 bg-slate-900/60'} transition-all flex flex-col justify-between`;
-            document.getElementById('fee-norte-card').className = `cursor-pointer p-4 rounded-lg border ${feeType === 'norte' ? 'border-cyan-400 bg-cyan-950/30 shadow-neon checked-box' : 'border-slate-700 bg-slate-900/60'} transition-all flex flex-col justify-between`;
+catalogElement.addEventListener('change', ({target}) => {
+  if (target.dataset.quantity) return;
+  const draft = drafts[mode];
+  if (target.dataset.item) draft.items[target.dataset.item] = Number(target.checked);
+  if (target.name === 'fee') draft.fee = target.value;
+  if (target.id === 'incident') draft.incident = target.checked;
+  if (target.id === 'police') {
+    draft.police = target.checked;
+    const car = data[mode].reparos.find(item => item.policePrice);
+    byId('price-' + car.id).textContent = money(draft.police ? car.policePrice : car.price);
+  }
+  renderSummary();
+});
+catalogElement.addEventListener('click', ({target}) => {
+  const button = target.closest('button');
+  if (!button) return;
+  if (button.dataset.mode && button.dataset.mode !== mode) {
+    mode = button.dataset.mode;
+    renderCatalog();
+  }
+  if (button.dataset.step) {
+    const { id, step } = button.dataset;
+    const count = Math.min(maxQuantity, Math.max(0, (drafts[mode].items[id] || 0) + Number(step)));
+    const field = byId('qty-' + id);
+    field.value = count;
+    field.removeAttribute('aria-invalid');
+    updateQuantity(field, count);
+  }
+});
 
-            calculateTotal();
-        }
+async function copy(text, message) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const field = document.createElement('textarea');
+    field.value = text;
+    field.style.position = 'fixed';
+    field.style.opacity = '0';
+    const previousFocus = document.activeElement;
+    document.body.append(field);
+    field.select();
+    try {
+      if (!document.execCommand('copy')) message = 'Não foi possível copiar. Selecione o texto no resumo e copie manualmente.';
+    } catch {
+      message = 'Não foi possível copiar. Selecione o texto no resumo e copie manualmente.';
+    } finally {
+      field.remove();
+      previousFocus.focus();
+    }
+  }
+  byId('feedback').textContent = message;
+}
+byId('copy-receipt').addEventListener('click', () => copy(receiptText, 'Orçamento copiado.'));
+byId('copy-total').addEventListener('click', () => copy(totalText, 'Total copiado.'));
+byId('clear').addEventListener('click', () => {
+  drafts[mode] = emptyDraft();
+  renderCatalog();
+  byId('feedback').textContent = 'Orçamento limpo.';
+});
+renderCatalog();
 
-        function toggleExplosao() {
-            state.explosao = !state.explosao;
-            const box = document.getElementById('explosao-card');
-            if (state.explosao) {
-                box.className = 'cursor-pointer p-4 rounded-lg border border-red-500 bg-red-950/20 shadow-[0_0_15px_rgba(239,68,68,0.3)] transition-all flex items-center justify-between checked-box';
-            } else {
-                box.className = 'cursor-pointer p-4 rounded-lg border border-slate-700 bg-slate-900/60 hover:border-cyan-500/60 transition-all flex items-center justify-between';
-            }
-            calculateTotal();
-        }
-
-        function calculateTotal() {
-            let total = 0;
-            let summaryHtml = '';
-            const currentData = data[currentMode];
-            const allItems = [...currentData.reparos, ...currentData.quantidades, ...(currentData.extras || [])];
-
-            for (const [id, val] of Object.entries(state.selections)) {
-                const item = allItems.find(i => i.id === id);
-                if (!item) continue;
-
-                if (item.type === 'qty') {
-                    const qty = val;
-                    if (qty > 0) {
-                        const subtotal = qty * item.price;
-                        total += subtotal;
-                        summaryHtml += `
-                            <div class="flex justify-between items-center py-1 border-b border-slate-800/60 text-xs">
-                                <span class="text-slate-300">${item.name} (x${qty})</span>
-                                <span class="font-bold text-cyan-400 title-font">$${subtotal.toLocaleString('en-US')}</span>
-                            </div>
-                        `;
-                    }
-                } else {
-                    if (val) {
-                        const price = (item.id === 'rep_carro' && state.policeCar) ? item.policePrice : item.price;
-                        total += price;
-                        const labelName = (item.id === 'rep_carro' && state.policeCar) ? 'Reparo Carro (Polícia)' : item.name;
-                        summaryHtml += `
-                            <div class="flex justify-between items-center py-1 border-b border-slate-800/60 text-xs">
-                                <span class="text-slate-300">${labelName}</span>
-                                <span class="font-bold text-cyan-400 title-font">$${price.toLocaleString('en-US')}</span>
-                            </div>
-                        `;
-                    }
-                }
-            }
-
-            // Fee
-            if (state.fee === 'norte') {
-                total += currentData.taxas.norte;
-                summaryHtml += `
-                    <div class="flex justify-between items-center py-1 border-b border-slate-800/60 text-xs">
-                        <span class="text-slate-300">Deslocamento Norte</span>
-                        <span class="font-bold text-cyan-400 title-font">$${currentData.taxas.norte.toLocaleString('en-US')}</span>
-                    </div>
-                `;
-            } else if (state.fee === 'sul') {
-                total += currentData.taxas.sul;
-                summaryHtml += `
-                    <div class="flex justify-between items-center py-1 border-b border-slate-800/60 text-xs">
-                        <span class="text-slate-300">Deslocamento Sul</span>
-                        <span class="font-bold text-cyan-400 title-font">$${currentData.taxas.sul.toLocaleString('en-US')}</span>
-                    </div>
-                `;
-            }
-
-            // Explosão
-            if (state.explosao) {
-                total += currentData.taxas.explosao;
-                summaryHtml += `
-                    <div class="flex justify-between items-center py-1 border-b border-slate-800/60 text-xs">
-                        <span class="text-red-300">Explosão / Água</span>
-                        <span class="font-bold text-red-400 title-font">$${currentData.taxas.explosao.toLocaleString('en-US')}</span>
-                    </div>
-                `;
-            }
-
-            if (summaryHtml === '') {
-                summaryHtml = '<p class="text-slate-500 italic text-center py-4">Nenhum item selecionado.</p>';
-            }
-
-            document.getElementById('summary-items').innerHTML = summaryHtml;
-            document.getElementById('total-price').innerText = '$' + total.toLocaleString('en-US');
-        }
-
-        function copyTotal() {
-            const priceText = document.getElementById('total-price').innerText;
-            navigator.clipboard.writeText(priceText).then(() => {
-                const toast = document.getElementById('toast');
-                toast.classList.remove('opacity-0', 'pointer-events-none');
-                setTimeout(() => {
-                    toast.classList.add('opacity-0', 'pointer-events-none');
-                }, 2500);
-            });
-        }
-
-        function resetCalculator() {
-            state = {
-                selections: {},
-                policeCar: false,
-                fee: 'local',
-                explosao: false
-            };
-            setFee('local');
-            document.getElementById('explosao-card').className = 'cursor-pointer p-4 rounded-lg border border-slate-700 bg-slate-900/60 hover:border-cyan-500/60 transition-all flex items-center justify-between';
-            renderUI();
-            calculateTotal();
-        }
-
-        // Initial Render
-        renderUI();
-        calculateTotal();
-    </script>
+const showcase = document.querySelector('.showcase');
+const mobileSummary = byId('mobile-summary');
+new IntersectionObserver(([entry]) => {
+  mobileSummary.hidden = entry.isIntersecting || entry.boundingClientRect.bottom > entry.rootBounds.top;
+}, { rootMargin: '-32px 0px 0px' }).observe(showcase);
+</script>
 </body>
 </html>
