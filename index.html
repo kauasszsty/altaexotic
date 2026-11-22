@@ -64,6 +64,24 @@ button:disabled { cursor:default; opacity:.45; }
 .fees .option { justify-content:flex-start; }
 .police { margin-top:.4rem; }
 .quantity { display:grid; grid-template-rows:1fr auto auto; gap:.65rem; }
+.product-card { min-width:0; position:relative; }
+.product-card .option, .quantity:has(.favorite) > div:first-child { padding-right:3.45rem; }
+.product-card .police { padding-right:.7rem; }
+.favorite { position:absolute; top:.25rem; right:.25rem; width:44px; border:0; border-radius:.45rem; background:transparent; color:var(--muted); font-size:1.35rem; }
+.favorite:hover,.favorite[aria-pressed=true] { color:var(--accent); background:#1c3446; }
+.option:has(input[data-item]:checked) strong { color:var(--accent); }
+.favorite-links { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.65rem; }
+.favorite-links:empty { display:none; }
+.favorite-links a { display:inline-flex; min-height:44px; align-items:center; border:1px solid var(--line); border-radius:.45rem; padding:.3rem .65rem; text-decoration:none; }
+.favorite-links a:hover { border-color:var(--accent); }
+.product-card { scroll-margin-block:1rem; }
+#receipt li { display:grid; grid-template-columns:minmax(0,1fr) auto; row-gap:.35rem; }
+.receipt-controls { display:flex; flex-wrap:wrap; gap:.3rem; align-items:center; grid-column:1/-1; }
+.receipt-controls button { border:1px solid var(--line); border-radius:.4rem; background:#243443; min-width:44px; padding:0 .55rem; }
+.receipt-controls [data-remove] { margin-left:auto; }
+@media (min-width:761px) {
+  .receipt-detail { max-height:clamp(7rem,33vh,22rem); overflow:auto; scrollbar-gutter:stable; padding-right:.25rem; }
+}
 .quantity[data-selected=true] { border-color:var(--accent); background:#173546; }
 .quantity-total { display:flex; flex-wrap:wrap; justify-content:space-between; gap:.2rem .5rem; border-top:1px solid var(--line); padding-top:.5rem; }
 .quantity [hidden] { display:none; }
@@ -141,6 +159,11 @@ html { scroll-padding-bottom:1rem; }
           <button type="button" class="mode" data-mode="servicos" aria-pressed="true">Serviços</button>
           <button type="button" class="mode" data-mode="parcerias" aria-pressed="false">Parcerias</button>
         </div>
+        <section class="panel" aria-labelledby="favorites-title">
+          <h3 id="favorites-title">Favoritos</h3>
+          <p id="favorites-empty">Marque a estrela de um item para ter um atalho aqui.</p>
+          <div class="favorite-links" id="favorites"></div>
+        </section>
         <section class="panel" aria-labelledby="fees-title">
           <h3 id="fees-title">Deslocamento</h3>
           <div class="fees" id="fees" role="group" aria-labelledby="fees-title"></div>
@@ -157,14 +180,16 @@ html { scroll-padding-bottom:1rem; }
       <section class="panel summary" id="resumo" tabindex="-1" aria-labelledby="summary-title">
         <h3 id="summary-title">Resumo do orçamento</h3>
         <p id="summary-mode"></p>
-        <div id="items-summary" hidden>
-          <h4>Itens</h4>
-          <ul id="receipt" class="receipt"></ul>
-          <div class="summary-row"><span>Subtotal dos itens</span><strong id="items-subtotal"></strong></div>
-        </div>
-        <div id="fees-summary" hidden>
-          <h4>Taxas</h4>
-          <ul id="receipt-fees" class="receipt"></ul>
+        <div class="receipt-detail">
+          <div id="items-summary" hidden>
+            <h4>Itens</h4>
+            <ul id="receipt" class="receipt"></ul>
+            <div class="summary-row"><span>Subtotal dos itens</span><strong id="items-subtotal"></strong></div>
+          </div>
+          <div id="fees-summary" hidden>
+            <h4>Taxas</h4>
+            <ul id="receipt-fees" class="receipt"></ul>
+          </div>
         </div>
         <p id="empty">Adicione itens ou selecione uma taxa para começar.</p>
         <div class="total"><label for="total">Total</label><output id="total">$0</output></div>
@@ -243,6 +268,8 @@ const modeNames = { servicos: 'Serviços', parcerias: 'Parcerias' };
 const feeNames = { local: 'Local', sul: 'Sul', norte: 'Norte' };
 const emptyDraft = () => ({ items: {}, fee: 'local', incident: false, police: false });
 const drafts = { servicos: emptyDraft(), parcerias: emptyDraft() };
+const favorites = { servicos: new Set(), parcerias: new Set() };
+const storageKey = 'auto-exotic:orcamento:v1';
 let mode = 'servicos';
 let receiptText = '';
 let totalText = '$0';
@@ -255,6 +282,55 @@ const maxQuantity = Math.min(...Object.values(data).map(catalog => {
   const quantityPrices = catalog.quantidades.reduce((sum, item) => sum + item.price, 0);
   return Math.floor((Number.MAX_SAFE_INTEGER - fixedTotal) / quantityPrices);
 }));
+
+function catalogItems(catalog) {
+  return [...catalog.reparos, ...catalog.quantidades, ...catalog.extras];
+}
+
+function saveWorkspace() {
+  try {
+    localStorage.setItem(storageKey, JSON.stringify({
+      mode, drafts, favorites: Object.fromEntries(
+        Object.entries(favorites).map(([table, ids]) => [table, [...ids]])
+      )
+    }));
+  } catch {
+    // The calculator remains available when browser storage is blocked.
+  }
+}
+
+function restoreWorkspace() {
+  let saved;
+  try {
+    saved = JSON.parse(localStorage.getItem(storageKey));
+  } catch {
+    return;
+  }
+  if (!saved) return;
+  if (Object.hasOwn(data, saved.mode)) mode = saved.mode;
+  for (const [table, catalog] of Object.entries(data)) {
+    const draft = drafts[table];
+    const savedDraft = saved.drafts?.[table];
+    const savedFavorites = saved.favorites?.[table];
+    if (Object.hasOwn(feeNames, savedDraft?.fee)) draft.fee = savedDraft.fee;
+    draft.incident = savedDraft?.incident === true;
+    draft.police = savedDraft?.police === true;
+    for (const item of catalogItems(catalog)) {
+      const count = savedDraft?.items?.[item.id];
+      const limit = item.type === 'qty' ? maxQuantity : 1;
+      if (Number.isInteger(count) && count > 0 && count <= limit) draft.items[item.id] = count;
+      if (Array.isArray(savedFavorites) && savedFavorites.includes(item.id)) favorites[table].add(item.id);
+    }
+  }
+}
+
+function renderFavorites() {
+  const links = catalogItems(data[mode]).filter(item => favorites[mode].has(item.id));
+  byId('favorites').innerHTML = links.map(item =>
+    `<a href="#product-${item.id}">${item.name}</a>`
+  ).join('');
+  byId('favorites-empty').hidden = links.length > 0;
+}
 
 function renderCatalog() {
   const catalog = data[mode];
@@ -277,9 +353,11 @@ function renderCatalog() {
   for (const group of ['reparos', 'quantidades', 'extras']) {
     byId(group).innerHTML = catalog[group].map(item => {
       const selected = draft.items[item.id];
+      const favorite = favorites[mode].has(item.id);
+      const favoriteButton = `<button class="favorite" type="button" data-favorite="${item.id}" aria-label="Favorito: ${item.name}" aria-pressed="${favorite}">${favorite ? '★' : '☆'}</button>`;
       if (item.type === 'qty') {
         const count = selected || 0;
-        return `<div class="quantity" id="product-${item.id}" data-selected="${count > 0}">
+        return `<div class="quantity product-card" id="product-${item.id}" tabindex="-1" data-selected="${count > 0}">
           <div><strong>${item.name}</strong><small>${money(item.price)} por unidade</small>
             <small class="included" id="included-${item.id}" ${count ? '' : 'hidden'}>Incluído</small></div>
           <div class="step" role="group" aria-label="Quantidade de ${item.name}">
@@ -288,14 +366,16 @@ function renderCatalog() {
             <button type="button" data-step="1" data-id="${item.id}" aria-label="Adicionar uma unidade: ${item.name}" ${count === maxQuantity ? 'disabled' : ''}>+</button>
           </div>
           <div class="quantity-total"><small>Subtotal</small><output id="subtotal-${item.id}" for="qty-${item.id}" aria-live="off">${money(count * item.price)}</output></div>
+          ${favoriteButton}
         </div>`;
       }
       const price = draft.police && item.policePrice ? item.policePrice : item.price;
-      return `<div><label class="option"><span><strong>${item.name}</strong><small id="price-${item.id}">${money(price)}</small></span>
+      return `<div class="product-card" id="product-${item.id}" tabindex="-1"><label class="option"><span><strong>${item.name}</strong><small id="price-${item.id}">${money(price)}</small></span>
         <input type="checkbox" data-item="${item.id}" ${selected ? 'checked' : ''}></label>
-        ${item.policePrice ? `<label class="option police"><span>Veículo policial</span><input type="checkbox" id="police" ${draft.police ? 'checked' : ''}></label>` : ''}</div>`;
+        ${item.policePrice ? `<label class="option police"><span>Veículo policial</span><input type="checkbox" id="police" ${draft.police ? 'checked' : ''}></label>` : ''}${favoriteButton}</div>`;
     }).join('');
   }
+  renderFavorites();
   renderSummary();
 }
 
@@ -304,13 +384,13 @@ function renderSummary() {
   const catalog = data[mode];
   const items = [];
   const fees = [];
-  for (const item of [...catalog.reparos, ...catalog.quantidades, ...catalog.extras]) {
+  for (const item of catalogItems(catalog)) {
     const count = draft.items[item.id];
     if (!count) continue;
     const police = draft.police && item.policePrice;
     const name = police ? item.name + ' (Polícia)' : item.name;
     const price = police || item.price;
-    items.push({ name, detail: item.type === 'qty' ? count + ' × ' + money(price) : '', subtotal: price * count });
+    items.push({ id: item.id, name, count, detail: item.type === 'qty' ? count + ' × ' + money(price) : '', subtotal: price * count });
   }
   if (draft.fee !== 'local') fees.push({ name: 'Deslocamento ' + feeNames[draft.fee], subtotal: catalog.taxas[draft.fee] });
   if (draft.incident) fees.push({ name: 'Explosão / Água', subtotal: catalog.taxas.explosao });
@@ -341,13 +421,21 @@ function renderSummary() {
   if (fees.length) receipt.push('', 'Taxas', ...fees.map(asText));
   receipt.push('', 'Total: ' + totalText);
   receiptText = receipt.join('\n');
+  saveWorkspace();
 }
 
 function renderReceiptGroup(sectionId, listId, lines) {
   byId(sectionId).hidden = lines.length === 0;
-  byId(listId).innerHTML = lines.map(({name, detail, subtotal}) =>
-    `<li><span>${name}${detail ? '<small>' + detail + '</small>' : ''}</span><strong>${money(subtotal)}</strong></li>`
-  ).join('');
+  byId(listId).innerHTML = lines.map(({id, name, count, detail, subtotal}) => {
+    const quantityControls = detail ? `
+      <button type="button" data-adjust="-1" aria-label="Reduzir quantidade: ${name}">−</button>
+      <button type="button" data-adjust="1" aria-label="Aumentar quantidade: ${name}" ${count === maxQuantity ? 'disabled' : ''}>+</button>` : '';
+    const controls = id ? `<div class="receipt-controls" data-line="${id}">
+      ${quantityControls}
+      <button type="button" data-remove aria-label="Remover: ${name}">Remover</button>
+    </div>` : '';
+    return `<li><span>${name}${detail ? '<small>' + detail + '</small>' : ''}</span><strong>${money(subtotal)}</strong>${controls}</li>`;
+  }).join('');
 }
 
 function updateQuantity(field, count) {
@@ -412,6 +500,16 @@ catalogElement.addEventListener('click', ({target}) => {
     mode = button.dataset.mode;
     renderCatalog();
   }
+  if (button.dataset.favorite) {
+    const id = button.dataset.favorite;
+    const selected = favorites[mode].has(id);
+    if (selected) favorites[mode].delete(id);
+    else favorites[mode].add(id);
+    button.setAttribute('aria-pressed', String(!selected));
+    button.textContent = selected ? '☆' : '★';
+    renderFavorites();
+    saveWorkspace();
+  }
   if (button.dataset.step) {
     const { id, step } = button.dataset;
     const count = Math.min(maxQuantity, Math.max(0, (drafts[mode].items[id] || 0) + Number(step)));
@@ -420,6 +518,26 @@ catalogElement.addEventListener('click', ({target}) => {
     field.removeAttribute('aria-invalid');
     updateQuantity(field, count);
   }
+});
+
+byId('receipt').addEventListener('click', ({target}) => {
+  const button = target.closest('button');
+  if (!button) return;
+  const { line: id } = button.parentElement.dataset;
+  const count = button.hasAttribute('data-remove') ? 0 : drafts[mode].items[id] + Number(button.dataset.adjust);
+  const field = byId('qty-' + id);
+  if (field) {
+    field.value = count;
+    field.removeAttribute('aria-invalid');
+    updateQuantity(field, count);
+  } else {
+    drafts[mode].items[id] = 0;
+    byId('product-' + id).querySelector('[data-item]').checked = false;
+    renderSummary();
+  }
+  const row = byId('receipt').querySelector('[data-line="' + id + '"]');
+  const nextButton = row?.querySelector('[data-adjust="' + button.dataset.adjust + '"]:enabled');
+  (nextButton || row?.querySelector('[data-remove]') || byId('resumo')).focus({ preventScroll: true });
 });
 
 async function copy(text, message) {
@@ -451,6 +569,7 @@ byId('clear').addEventListener('click', () => {
   renderCatalog();
   byId('feedback').textContent = 'Orçamento limpo.';
 });
+restoreWorkspace();
 renderCatalog();
 
 const showcase = document.querySelector('.showcase');
