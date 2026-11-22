@@ -64,17 +64,7 @@ button:disabled { cursor:default; opacity:.45; }
 .fees .option { justify-content:flex-start; }
 .police { margin-top:.4rem; }
 .quantity { display:grid; grid-template-rows:1fr auto auto; gap:.65rem; }
-.product-card { min-width:0; position:relative; }
-.product-card .option, .quantity:has(.favorite) > div:first-child { padding-right:3.45rem; }
-.product-card .police { padding-right:.7rem; }
-.favorite { position:absolute; top:.25rem; right:.25rem; width:44px; border:0; border-radius:.45rem; background:transparent; color:var(--muted); font-size:1.35rem; }
-.favorite:hover,.favorite[aria-pressed=true] { color:var(--accent); background:#1c3446; }
 .option:has(input[data-item]:checked) strong { color:var(--accent); }
-.favorite-links { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.65rem; }
-.favorite-links:empty { display:none; }
-.favorite-links a { display:inline-flex; min-height:44px; align-items:center; border:1px solid var(--line); border-radius:.45rem; padding:.3rem .65rem; text-decoration:none; }
-.favorite-links a:hover { border-color:var(--accent); }
-.product-card { scroll-margin-block:1rem; }
 #receipt li { display:grid; grid-template-columns:minmax(0,1fr) auto; row-gap:.35rem; }
 .receipt-controls { display:flex; flex-wrap:wrap; gap:.3rem; align-items:center; grid-column:1/-1; }
 .receipt-controls button { border:1px solid var(--line); border-radius:.4rem; background:#243443; min-width:44px; padding:0 .55rem; }
@@ -159,11 +149,6 @@ html { scroll-padding-bottom:1rem; }
           <button type="button" class="mode" data-mode="servicos" aria-pressed="true">Serviços</button>
           <button type="button" class="mode" data-mode="parcerias" aria-pressed="false">Parcerias</button>
         </div>
-        <section class="panel" aria-labelledby="favorites-title">
-          <h3 id="favorites-title">Favoritos</h3>
-          <p id="favorites-empty">Marque a estrela de um item para ter um atalho aqui.</p>
-          <div class="favorite-links" id="favorites"></div>
-        </section>
         <section class="panel" aria-labelledby="fees-title">
           <h3 id="fees-title">Deslocamento</h3>
           <div class="fees" id="fees" role="group" aria-labelledby="fees-title"></div>
@@ -268,7 +253,6 @@ const modeNames = { servicos: 'Serviços', parcerias: 'Parcerias' };
 const feeNames = { local: 'Local', sul: 'Sul', norte: 'Norte' };
 const emptyDraft = () => ({ items: {}, fee: 'local', incident: false, police: false });
 const drafts = { servicos: emptyDraft(), parcerias: emptyDraft() };
-const favorites = { servicos: new Set(), parcerias: new Set() };
 const storageKey = 'auto-exotic:orcamento:v1';
 let mode = 'servicos';
 let receiptText = '';
@@ -289,11 +273,7 @@ function catalogItems(catalog) {
 
 function saveWorkspace() {
   try {
-    localStorage.setItem(storageKey, JSON.stringify({
-      mode, drafts, favorites: Object.fromEntries(
-        Object.entries(favorites).map(([table, ids]) => [table, [...ids]])
-      )
-    }));
+    localStorage.setItem(storageKey, JSON.stringify({mode, drafts}));
   } catch {
     // The calculator remains available when browser storage is blocked.
   }
@@ -311,7 +291,6 @@ function restoreWorkspace() {
   for (const [table, catalog] of Object.entries(data)) {
     const draft = drafts[table];
     const savedDraft = saved.drafts?.[table];
-    const savedFavorites = saved.favorites?.[table];
     if (Object.hasOwn(feeNames, savedDraft?.fee)) draft.fee = savedDraft.fee;
     draft.incident = savedDraft?.incident === true;
     draft.police = savedDraft?.police === true;
@@ -319,17 +298,8 @@ function restoreWorkspace() {
       const count = savedDraft?.items?.[item.id];
       const limit = item.type === 'qty' ? maxQuantity : 1;
       if (Number.isInteger(count) && count > 0 && count <= limit) draft.items[item.id] = count;
-      if (Array.isArray(savedFavorites) && savedFavorites.includes(item.id)) favorites[table].add(item.id);
     }
   }
-}
-
-function renderFavorites() {
-  const links = catalogItems(data[mode]).filter(item => favorites[mode].has(item.id));
-  byId('favorites').innerHTML = links.map(item =>
-    `<a href="#product-${item.id}">${item.name}</a>`
-  ).join('');
-  byId('favorites-empty').hidden = links.length > 0;
 }
 
 function renderCatalog() {
@@ -353,11 +323,9 @@ function renderCatalog() {
   for (const group of ['reparos', 'quantidades', 'extras']) {
     byId(group).innerHTML = catalog[group].map(item => {
       const selected = draft.items[item.id];
-      const favorite = favorites[mode].has(item.id);
-      const favoriteButton = `<button class="favorite" type="button" data-favorite="${item.id}" aria-label="Favorito: ${item.name}" aria-pressed="${favorite}">${favorite ? '★' : '☆'}</button>`;
       if (item.type === 'qty') {
         const count = selected || 0;
-        return `<div class="quantity product-card" id="product-${item.id}" tabindex="-1" data-selected="${count > 0}">
+        return `<div class="quantity" id="product-${item.id}" data-selected="${count > 0}">
           <div><strong>${item.name}</strong><small>${money(item.price)} por unidade</small>
             <small class="included" id="included-${item.id}" ${count ? '' : 'hidden'}>Incluído</small></div>
           <div class="step" role="group" aria-label="Quantidade de ${item.name}">
@@ -366,16 +334,14 @@ function renderCatalog() {
             <button type="button" data-step="1" data-id="${item.id}" aria-label="Adicionar uma unidade: ${item.name}" ${count === maxQuantity ? 'disabled' : ''}>+</button>
           </div>
           <div class="quantity-total"><small>Subtotal</small><output id="subtotal-${item.id}" for="qty-${item.id}" aria-live="off">${money(count * item.price)}</output></div>
-          ${favoriteButton}
         </div>`;
       }
       const price = draft.police && item.policePrice ? item.policePrice : item.price;
-      return `<div class="product-card" id="product-${item.id}" tabindex="-1"><label class="option"><span><strong>${item.name}</strong><small id="price-${item.id}">${money(price)}</small></span>
+      return `<div id="product-${item.id}"><label class="option"><span><strong>${item.name}</strong><small id="price-${item.id}">${money(price)}</small></span>
         <input type="checkbox" data-item="${item.id}" ${selected ? 'checked' : ''}></label>
-        ${item.policePrice ? `<label class="option police"><span>Veículo policial</span><input type="checkbox" id="police" ${draft.police ? 'checked' : ''}></label>` : ''}${favoriteButton}</div>`;
+        ${item.policePrice ? `<label class="option police"><span>Veículo policial</span><input type="checkbox" id="police" ${draft.police ? 'checked' : ''}></label>` : ''}</div>`;
     }).join('');
   }
-  renderFavorites();
   renderSummary();
 }
 
@@ -499,16 +465,6 @@ catalogElement.addEventListener('click', ({target}) => {
   if (button.dataset.mode && button.dataset.mode !== mode) {
     mode = button.dataset.mode;
     renderCatalog();
-  }
-  if (button.dataset.favorite) {
-    const id = button.dataset.favorite;
-    const selected = favorites[mode].has(id);
-    if (selected) favorites[mode].delete(id);
-    else favorites[mode].add(id);
-    button.setAttribute('aria-pressed', String(!selected));
-    button.textContent = selected ? '☆' : '★';
-    renderFavorites();
-    saveWorkspace();
   }
   if (button.dataset.step) {
     const { id, step } = button.dataset;
